@@ -53,7 +53,8 @@ ext {
     dbSchema = (project.findProperty('dbSchema') ?: 'hr') as String
     createScript = file(project.findProperty('createScript') ?: 'sql/01_create_db.sql')
     initScript   = file(project.findProperty('initScript')   ?: 'sql/02_init_db.sql')
-    dumpFile     = file(project.findProperty('dumpFile')     ?: 'build/db_dump.txt')
+	dumpScript   = file(project.findProperty('dumpScript')   ?: 'sql/03_dump_db.sql')
+    dumpFile     = file(project.findProperty('dumpFile')     ?: 'db_dump.txt')
 
     // If psql is not in PATH, override: -PpsqlPath=/path/to/psql
     psqlPath = (project.findProperty('psqlPath') ?: 'psql') as String
@@ -90,30 +91,14 @@ tasks.register('dbClean', Exec) {
 
 tasks.register('dbDump', Exec) {
     group = 'database'
-    description = 'Dump key tables to build/db_dump.txt'
-    doFirst {
-        dumpFile.parentFile.mkdirs()
-    }
+    description = 'Dump key tables to build/db_dump.txt (via psql -f)'
+    inputs.file(dumpScript)
+
+    doFirst { dumpFile.parentFile.mkdirs() }
+
     environment 'PGPASSWORD', dbPassword
+    commandLine([psqlPath] + basePsqlArgs() + ['-f', dumpScript.absolutePath])
 
-    // Important: use SET search_path to ensure correct schema
-    def dumpSql = """
-        SET search_path=${dbSchema};
-        \\echo '=== Departments ===';
-        TABLE "Departments";
-        \\echo '=== Positions ===';
-        TABLE "Positions";
-        \\echo '=== DepartmentPositions ===';
-        TABLE "DepartmentPositions";
-        \\echo '=== Employees ===';
-        TABLE "Employees";
-        \\echo '=== Assignments ===';
-        TABLE "Assignments";
-    """.stripIndent()
-
-    commandLine([psqlPath] + basePsqlArgs() + ['-c', dumpSql])
-
-    // Write stdout to file
     standardOutput = new FileOutputStream(dumpFile)
 }
 
