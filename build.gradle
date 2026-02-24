@@ -10,7 +10,7 @@ description = 'For the CMC MSU Web labs'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(25)
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
 
@@ -38,3 +38,82 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// ---- DB tasks (psql-based) ----
+
+ext {
+    // Defaults match docker-compose.yml
+    dbHost = (project.findProperty('dbHost') ?: 'localhost') as String
+    dbPort = (project.findProperty('dbPort') ?: '5432') as String
+    dbName = (project.findProperty('dbName') ?: 'postgres') as String
+    dbUser = (project.findProperty('dbUser') ?: 'postgres') as String
+    dbPassword = (project.findProperty('dbPassword') ?: 'password') as String
+
+    // SQL scripts location
+    dbSchema = (project.findProperty('dbSchema') ?: 'hr') as String
+    createScript = file(project.findProperty('createScript') ?: 'sql/01_create_db.sql')
+    initScript   = file(project.findProperty('initScript')   ?: 'sql/02_init_db.sql')
+    dumpFile     = file(project.findProperty('dumpFile')     ?: 'build/db_dump.txt')
+
+    // If psql is not in PATH, override: -PpsqlPath=/path/to/psql
+    psqlPath = (project.findProperty('psqlPath') ?: 'psql') as String
+}
+
+def basePsqlArgs = {
+    ['-h', dbHost, '-p', dbPort, '-U', dbUser, '-d', dbName, '-v', 'ON_ERROR_STOP=1']
+}
+
+tasks.register('dbCreate', Exec) {
+    group = 'database'
+    description = 'Create DB schema (run sql/01_create_db.sql)'
+    inputs.file(createScript)
+    environment 'PGPASSWORD', dbPassword
+    commandLine([psqlPath] + basePsqlArgs() + ['-f', createScript.absolutePath])
+}
+
+tasks.register('dbInit', Exec) {
+    group = 'database'
+    description = 'Initialize DB with sample data (run sql/02_init_db.sql)'
+    dependsOn 'dbCreate'
+    inputs.file(initScript)
+    environment 'PGPASSWORD', dbPassword
+    commandLine([psqlPath] + basePsqlArgs() + ['-f', initScript.absolutePath])
+}
+
+tasks.register('dbClean', Exec) {
+    group = 'database'
+    description = 'Drop schema hr (or dbSchema) from DB'
+    environment 'PGPASSWORD', dbPassword
+    // Drops only your schema, not the whole database
+    commandLine([psqlPath] + basePsqlArgs() + ['-c', "DROP SCHEMA IF EXISTS ${dbSchema} CASCADE;"])
+}
+
+tasks.register('dbDump', Exec) {
+    group = 'database'
+    description = 'Dump key tables to build/db_dump.txt'
+    doFirst {
+        dumpFile.parentFile.mkdirs()
+    }
+    environment 'PGPASSWORD', dbPassword
+
+    // Important: use SET search_path to ensure correct schema
+    def dumpSql = """
+        SET search_path=${dbSchema};
+        \\echo '=== Departments ===';
+        TABLE "Departments";
+        \\echo '=== Positions ===';
+        TABLE "Positions";
+        \\echo '=== DepartmentPositions ===';
+        TABLE "DepartmentPositions";
+        \\echo '=== Employees ===';
+        TABLE "Employees";
+        \\echo '=== Assignments ===';
+        TABLE "Assignments";
+    """.stripIndent()
+
+    commandLine([psqlPath] + basePsqlArgs() + ['-c', dumpSql])
+
+    // Write stdout to file
+    standardOutput = new FileOutputStream(dumpFile)
+}
+

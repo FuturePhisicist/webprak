@@ -1,11 +1,28 @@
 # Система информации о персонале компании
 
-## Схема
+Шаблон проекта отсюда: [Spring IO](start.spring.io)
+
+## Как запустить?
+
+```bash
+sudo docker compose up -d # sets up PostgreSQL
+
+sudo pacman -S jdk21-openjdk
+
+./gradlew dbCreate
+./gradlew dbInit
+./gradlew dbDump
+./gradlew dbClean
+./gradlew -PdbName=postgres -PdbUser=postgres -PdbPassword=password dbInit
+./gradlew -PdbSchema=hr -PdumpFile=build/out.txt dbDump
+```
+
+## Страницы (переходы и кнопки)
+
+### Схема
 
 > [!NOTE]  
 > ToDo
-
-## Страницы (переходы и кнопки)
 
 Все страницы имеют кнопку:
 
@@ -184,4 +201,102 @@
 * Ввести ФИО в строку поиска
 * При совпадении фамилий можно уточнить сотрудника по сроку работы или подразделению
 * Перейти на персональную страницу сотрудника
+
+# База данных
+
+## DBML
+
+Нарисовано тут: [DBDiagram IO](dbdiagram.io)
+
+```dbml
+Project HR_Personnel_System {
+  database_type: "PostgreSQL"
+  note: "OLTP-схема для системы управления персоналом: сотрудники, подразделения (иерархия), должности, штатные позиции и история назначений. Включены enum-типы и частичный уникальный индекс для активного назначения."
+}
+
+Enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+}
+
+Enum EducationLevel {
+  SECONDARY
+  VOCATIONAL
+  BACHELOR
+  MASTER
+  PHD
+}
+
+Table Employees {
+  employee_id   bigserial [pk]
+  last_name     varchar(100) [not null]
+  first_name    varchar(100) [not null]
+  middle_name   varchar(100)
+  home_address  text [not null]
+  education     EducationLevel [not null, note: "Уровень образования (enum)"]
+  hire_date     date [not null, note: "Дата приёма на работу (для расчёта стажа)"]
+  status        EmployeeStatus [not null, default: "ACTIVE", note: "Статус сотрудника (soft delete через INACTIVE)"]
+  created_at    timestamptz [not null, default: "now()"]
+  updated_at    timestamptz [not null, default: "now()"]
+
+  Indexes {
+    (last_name, first_name) [name: "idx_employees_last_first", note: "Поиск по ФИО"]
+  }
+
+  Note: "Справочник сотрудников. История должностей хранится в Assignments."
+}
+
+Table Departments {
+  department_id        bigserial [pk]
+  name                 varchar(200) [not null, unique]
+  parent_department_id bigint [ref: > Departments.department_id, note: "Головное подразделение; NULL = корневое"]
+  manager_employee_id  bigint [ref: > Employees.employee_id, note: "Руководитель подразделения; может быть NULL"]
+
+  Note: "Подразделения компании. Иерархия через parent_department_id."
+}
+
+Table Positions {
+  position_id      bigserial [pk]
+  name             varchar(200) [not null, unique]
+  responsibilities text [not null]
+
+  Note: "Справочник должностей."
+}
+
+Table DepartmentPositions {
+  dept_pos_id   bigserial [pk]
+  department_id bigint [not null, ref: > Departments.department_id]
+  position_id   bigint [not null, ref: > Positions.position_id]
+  slots_total   int [not null, note: "Количество ставок (>=0)"]
+
+  Indexes {
+    (department_id, position_id) [name: "uq_deptpos_unique", unique, note: "Одна должность в штате подразделения — одной строкой"]
+  }
+
+  Note: "Штатное расписание: должность + количество позиций в подразделении. Занятость определяется по активным Assignments."
+}
+
+Table Assignments {
+  assignment_id bigserial [pk]
+  employee_id   bigint [not null, ref: > Employees.employee_id]
+  department_id bigint [not null, ref: > Departments.department_id]
+  position_id   bigint [not null, ref: > Positions.position_id]
+  start_date    date [not null]
+  end_date      date [note: "NULL = активное (текущее) назначение"]
+  note          text
+
+  Indexes {
+    (employee_id) [name: "uq_active_assignment_per_employee", unique, note: "Частичный UNIQUE WHERE end_date IS NULL (1 активное назначение на сотрудника)"]
+    (department_id) [name: "idx_assignments_department"]
+    (position_id) [name: "idx_assignments_position"]
+    (employee_id, start_date) [name: "idx_assignments_employee_dates", note: "История назначений по сотруднику (start_date DESC в БД)"]
+  }
+
+  Note: "История назначений сотрудников на должности в подразделениях. CHECK: end_date IS NULL OR end_date >= start_date."
+}
+```
+
+## Схема
+
+![Схема БД](images/db_scheme.png)
 
