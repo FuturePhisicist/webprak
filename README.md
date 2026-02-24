@@ -2,17 +2,19 @@
 
 Шаблон проекта отсюда: [Spring IO](start.spring.io)
 
+> [!NOTE]  
+> ToDo: Add the screenshot
+
 ## Как запустить?
 
 ```bash
-sudo docker compose up -d # sets up PostgreSQL
-
-sudo pacman -S jdk21-openjdk
+sudo pacman -S jdk21-openjdk postgresql
 
 ./gradlew dbCreate
 ./gradlew dbInit
 ./gradlew dbDump
 ./gradlew dbClean
+
 ./gradlew -PdbName=postgres -PdbUser=postgres -PdbPassword=password dbInit
 ./gradlew -PdbSchema=hr -PdumpFile=build/out.txt dbDump
 ```
