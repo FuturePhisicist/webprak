@@ -43,9 +43,11 @@ tasks.named('test') {
 
 ext {
     // Defaults match docker-compose.yml
-    dbHost = (project.findProperty('dbHost') ?: 'localhost') as String
+    // dbHost = (project.findProperty('dbHost') ?: 'localhost') as String
+    dbHost = (project.findProperty('dbHost') ?: 'postgres') as String
     dbPort = (project.findProperty('dbPort') ?: '5432') as String
-    dbName = (project.findProperty('dbName') ?: 'postgres') as String
+    // dbName = (project.findProperty('dbName') ?: 'postgres') as String
+    dbName = (project.findProperty('dbName') ?: 'personnel') as String
     dbUser = (project.findProperty('dbUser') ?: 'postgres') as String
     dbPassword = (project.findProperty('dbPassword') ?: 'password') as String
 

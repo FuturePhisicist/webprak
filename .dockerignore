@@ -1,0 +1,11 @@
+.gradle
+build
+out
+target
+.idea
+*.iml
+*.log
+db_dump.txt
+postgres-data
+pgadmin-data
+

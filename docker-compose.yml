@@ -1,0 +1,71 @@
+services:
+  postgres:
+    container_name: postgres_container
+    image: postgres:15
+    environment:
+      POSTGRES_DB: personnel
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d personnel"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - appnet
+
+  devshell:
+    container_name: devshell_container
+    build:
+      context: .
+      dockerfile: Dockerfile.devshell
+    depends_on:
+      postgres:
+        condition: service_healthy
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+      - gradle-cache:/home/dev/.gradle
+    environment:
+      # Convenience defaults for psql
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: personnel
+      PGUSER: postgres
+      PGPASSWORD: password
+    stdin_open: true
+    tty: true
+    networks:
+      - appnet
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4:7.2
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@postgres.local"
+      PGADMIN_DEFAULT_PASSWORD: "password"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - appnet
+
+volumes:
+  postgres-data:
+  pgadmin-data:
+  gradle-cache:
+
+networks:
+  appnet:
+    driver: bridge

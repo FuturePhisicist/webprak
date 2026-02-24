@@ -12,7 +12,11 @@
 ## Как запустить?
 
 ```bash
-sudo pacman -S jdk21-openjdk postgresql
+# sudo pacman -S jdk21-openjdk postgresql
+
+sudo docker compose up -d --build
+
+sudo docker exec -it devshell_container bash
 
 ./gradlew dbCreate
 ./gradlew dbInit
