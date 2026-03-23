@@ -1,9 +1,9 @@
 package ru.msu.cmc.webprak.repository;
 
-import ru.msu.cmc.webprak.model.Assignment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import ru.msu.cmc.webprak.model.Assignment;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +43,7 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
     @Query("""
             select a
             from Assignment a
+            join fetch a.employee
             where a.department.id = :departmentId
               and a.endDate is null
             """)
@@ -51,6 +52,7 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
     @Query("""
             select a
             from Assignment a
+            join fetch a.employee
             where a.position.id = :positionId
               and a.endDate is null
             """)
