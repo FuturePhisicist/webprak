@@ -44,8 +44,7 @@ public class DepartmentService {
     }
 
     public Optional<Employee> findManager(Long departmentId) {
-        return departmentRepository.findById(departmentId)
-                .map(Department::getManager);
+        return departmentRepository.findManagerByDepartmentId(departmentId);
     }
 }
 

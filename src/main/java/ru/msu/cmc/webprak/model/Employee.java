@@ -11,6 +11,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 @Entity
 @Table(name = "employees", schema = "hr")
 @Getter
@@ -37,14 +40,16 @@ public class Employee {
     private String homeAddress;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "education", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "education", nullable = false, columnDefinition = "education_level")
     private EducationLevel education;
 
     @Column(name = "hire_date", nullable = false)
     private LocalDate hireDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "status", nullable = false, columnDefinition = "employee_status")
     private EmployeeStatus status;
 
     @Column(name = "created_at", nullable = false)

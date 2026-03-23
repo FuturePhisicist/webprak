@@ -10,8 +10,8 @@ import org.springframework.test.context.jdbc.Sql;
 @SpringBootTest
 @Sql(
         scripts = {
-                "file:sql/01_create_db.sql",
-                "file:sql/02_init_db.sql"
+                "classpath:sql/01_create_db_test.sql",
+                "classpath:sql/02_init_db_test.sql"
         },
         executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
 )

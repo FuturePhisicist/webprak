@@ -162,33 +162,33 @@ class AssignmentServiceTest extends BaseIntegrationTest {
                 ));
     }
 
-    @Test
-    void transferEmployee_shouldCloseOldAssignmentAndCreateNewOne() {
-        Assignment newAssignment = assignmentService.transferEmployee(
-                4L,
-                2L,
-                3L,
-                LocalDate.of(2025, 3, 1),
-                "Перевод в IT департамент"
-        );
+	@Test
+	void transferEmployee_shouldCloseOldAssignmentAndCreateNewOne() {
+		Assignment newAssignment = assignmentService.transferEmployee(
+				4L,
+				4L,
+				5L,
+				LocalDate.of(2025, 3, 1),
+				"Перевод в финансовый отдел"
+		);
 
-        assertNotNull(newAssignment.getId());
-        assertEquals(4L, newAssignment.getEmployee().getId());
-        assertEquals(2L, newAssignment.getDepartment().getId());
-        assertEquals(3L, newAssignment.getPosition().getId());
-        assertEquals(LocalDate.of(2025, 3, 1), newAssignment.getStartDate());
-        assertNull(newAssignment.getEndDate());
+		assertNotNull(newAssignment.getId());
+		assertEquals(4L, newAssignment.getEmployee().getId());
+		assertEquals(4L, newAssignment.getDepartment().getId());
+		assertEquals(5L, newAssignment.getPosition().getId());
+		assertEquals(LocalDate.of(2025, 3, 1), newAssignment.getStartDate());
+		assertNull(newAssignment.getEndDate());
 
-        Optional<Assignment> activeAssignment = assignmentService.findActiveAssignmentByEmployee(4L);
-        assertTrue(activeAssignment.isPresent());
-        assertEquals(newAssignment.getId(), activeAssignment.get().getId());
+		Optional<Assignment> activeAssignment = assignmentService.findActiveAssignmentByEmployee(4L);
+		assertTrue(activeAssignment.isPresent());
+		assertEquals(newAssignment.getId(), activeAssignment.get().getId());
 
-        List<Assignment> history = assignmentService.findEmployeeHistory(4L);
-        assertEquals(3, history.size());
-        assertTrue(history.stream().anyMatch(a ->
-                a.getId().equals(6L) && LocalDate.of(2025, 2, 28).equals(a.getEndDate())
-        ));
-    }
+		List<Assignment> history = assignmentService.findEmployeeHistory(4L);
+		assertEquals(3, history.size());
+		assertTrue(history.stream().anyMatch(a ->
+				a.getId().equals(6L) && LocalDate.of(2025, 2, 28).equals(a.getEndDate())
+		));
+	}
 
     @Test
     void transferEmployee_shouldThrowWhenEmployeeHasNoActiveAssignment() {
