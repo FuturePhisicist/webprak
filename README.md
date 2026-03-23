@@ -4,10 +4,11 @@
 
 ## Получение шаблона для проекта
 
-Шаблон проекта отсюда: [Spring IO](start.spring.io)
+Шаблон проекта отсюда: [Spring IO](https://start.spring.io)
 
-> [!NOTE]  
-> ToDo: Add the screenshot
+![Что было выбрано?](images/spring_initializr.png)
+
+Единственное, что потом было изменено к первому отчету --- Java 21.
 
 ## Как запустить?
 
