@@ -18,13 +18,21 @@ sudo docker compose up -d --build
 
 sudo docker exec -it devshell_container bash
 
+# Runners for the first report
+
 ./gradlew dbCreate
 ./gradlew dbInit
 ./gradlew dbDump
 ./gradlew dbClean
 
-./gradlew -PdbName=postgres -PdbUser=postgres -PdbPassword=password dbInit
-./gradlew -PdbSchema=hr -PdumpFile=build/out.txt dbDump
+# ./gradlew -PdbName=postgres -PdbUser=postgres -PdbPassword=password dbInit
+# ./gradlew -PdbSchema=hr -PdumpFile=build/out.txt dbDump
+
+# Runners for the second report
+
+./gradlew clean test
+./gradlew clean testVerbose
+./gradlew clean testSummary
 ```
 
 ## Страницы (переходы и кнопки)

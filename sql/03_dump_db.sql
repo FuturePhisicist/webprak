@@ -1,17 +1,17 @@
 SET search_path = hr;
 
-\echo '=== Departments ==='
-TABLE Departments;
+\echo '=== departments ==='
+TABLE departments;
 
-\echo '=== Positions ==='
-TABLE Positions;
+\echo '=== positions ==='
+TABLE positions;
 
-\echo '=== DepartmentPositions ==='
-TABLE DepartmentPositions;
+\echo '=== department_positions ==='
+TABLE department_positions;
 
-\echo '=== Employees ==='
-TABLE Employees;
+\echo '=== employees ==='
+TABLE employees;
 
-\echo '=== Assignments ==='
-TABLE Assignments;
+\echo '=== assignments ==='
+TABLE assignments;
 

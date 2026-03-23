@@ -1,25 +1,14 @@
 BEGIN;
 
--- Recreate schema
-
 DROP SCHEMA IF EXISTS hr CASCADE;
 CREATE SCHEMA hr;
 SET search_path = hr;
 
--- Enum types
+DROP TYPE IF EXISTS employee_status CASCADE;
+DROP TYPE IF EXISTS education_level CASCADE;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'employee_status') THEN
-    CREATE TYPE employee_status AS ENUM ('ACTIVE', 'INACTIVE');
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'education_level') THEN
-    CREATE TYPE education_level AS ENUM ('SECONDARY', 'VOCATIONAL', 'BACHELOR', 'MASTER', 'PHD');
-  END IF;
-END$$;
-
--- Tables
+CREATE TYPE employee_status AS ENUM ('ACTIVE', 'INACTIVE');
+CREATE TYPE education_level AS ENUM ('SECONDARY', 'VOCATIONAL', 'BACHELOR', 'MASTER', 'PHD');
 
 CREATE TABLE employees (
   employee_id   BIGSERIAL PRIMARY KEY,
@@ -91,17 +80,12 @@ CREATE TABLE assignments (
   CONSTRAINT ck_assign_dates CHECK (end_date IS NULL OR end_date >= start_date)
 );
 
--- Indexes
-
--- For frequent search by name
 CREATE INDEX idx_employees_last_first ON employees(last_name, first_name);
 
--- Active assignment per employee: only one row with end_date IS NULL
 CREATE UNIQUE INDEX uq_active_assignment_per_employee
   ON assignments(employee_id)
   WHERE end_date IS NULL;
 
--- Helpful indexes for filtering
 CREATE INDEX idx_assignments_department ON assignments(department_id);
 CREATE INDEX idx_assignments_position ON assignments(position_id);
 CREATE INDEX idx_assignments_employee_dates ON assignments(employee_id, start_date DESC);
