@@ -130,6 +130,30 @@ class AssignmentServiceTest extends BaseIntegrationTest {
                 ));
     }
 
+	@Test
+    void assignEmployee_shouldThrowWhenDepartmentPositionNotExists() {
+        assertThrows(EntityNotFoundException.class,
+                () -> assignmentService.assignEmployee(
+                        5L,
+                        3L,
+                        5L, // нет такой связки
+                        LocalDate.now(),
+                        "bad"
+                ));
+    }
+
+	// @Test
+ //    void assignEmployee_shouldThrowWhenEmployeeNotFound() {
+ //        assertThrows(EntityNotFoundException.class,
+ //                () -> assignmentService.assignEmployee(
+ //                        999L,
+ //                        1L,
+ //                        1L,
+ //                        LocalDate.now(),
+ //                        "bad"
+ //                ));
+ //    }
+
     @Test
     void closeActiveAssignment_shouldCloseCurrentAssignment() {
         Assignment closed = assignmentService.closeActiveAssignment(
@@ -211,6 +235,18 @@ class AssignmentServiceTest extends BaseIntegrationTest {
                         3L,
                         LocalDate.of(2020, 11, 20),
                         "Слишком ранний перевод"
+                ));
+    }
+
+    @Test
+    void transferEmployee_shouldThrowWhenTransferDateIsNull() {
+        assertThrows(BusinessLogicException.class,
+                () -> assignmentService.transferEmployee(
+                        4L,
+                        4L,
+                        5L,
+                        null,
+                        "bad"
                 ));
     }
 }
