@@ -1,13 +1,11 @@
 package ru.msu.cmc.webprak;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class WebprakApplicationTests {
+class WebprakApplicationTests extends BaseIntegrationTest {
 
-	@Test
-	void contextLoads() {
-	}
-
+    @Test
+    void contextLoads() {
+    }
 }
+
