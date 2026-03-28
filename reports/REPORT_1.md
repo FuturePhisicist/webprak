@@ -16,7 +16,7 @@
 
 Шаблон проекта отсюда: [Spring IO](https://start.spring.io)
 
-![Что было выбрано?](images/spring_initializr.png)
+![Что было выбрано?](../images/spring_initializr.png)
 
 Единственное, что потом было изменено к первому отчету --- Java 21.
 
@@ -268,8 +268,8 @@
 
 ### DBML-код
 
-Для изучения кода DBML: [сюда](db_layout.dbml)
+Для изучения кода DBML: [сюда](../db_layout.dbml)
 
 ### Схема
 
-![Схема БД](images/db_scheme.png)
+![Схема БД](../images/db_scheme.png)
