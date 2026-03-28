@@ -2,25 +2,19 @@
 
 Сайт с заданием: [главная страница](https://sites.google.com/view/wtpractice/home)
 
-## Получение шаблона для проекта
+## Как запустить?
 
-Шаблон проекта отсюда: [Spring IO](https://start.spring.io)
+```bash
+sudo docker compose up -d --build
 
-![Что было выбрано?](images/spring_initializr.png)
+sudo docker exec -it devshell_container bash
+```
 
-Единственное, что потом было изменено к первому отчету --- Java 21.
+# Первый отчет
 
 ## Как запустить?
 
 ```bash
-# sudo pacman -S jdk21-openjdk postgresql
-
-sudo docker compose up -d --build
-
-sudo docker exec -it devshell_container bash
-
-# Runners for the first report
-
 ./gradlew dbCreate
 ./gradlew dbInit
 ./gradlew dbDump
@@ -28,13 +22,15 @@ sudo docker exec -it devshell_container bash
 
 # ./gradlew -PdbName=postgres -PdbUser=postgres -PdbPassword=password dbInit
 # ./gradlew -PdbSchema=hr -PdumpFile=build/out.txt dbDump
-
-# Runners for the second report
-
-./gradlew clean test
-./gradlew clean testVerbose
-./gradlew clean testSummary
 ```
+
+## Получение шаблона для проекта
+
+Шаблон проекта отсюда: [Spring IO](https://start.spring.io)
+
+![Что было выбрано?](images/spring_initializr.png)
+
+Единственное, что потом было изменено к первому отчету --- Java 21.
 
 ## Страницы (переходы и кнопки)
 
@@ -373,4 +369,35 @@ Table Assignments {
 ## Схема
 
 ![Схема БД](images/db_scheme.png)
+
+# Второй отчет
+
+## Тесты service-методов
+
+### Как запускать?
+
+```bash
+./gradlew clean test
+./gradlew clean testVerbose
+./gradlew clean testSummary
+```
+
+### Результаты выполнения тестов
+
+![Первый снимок экрана](images/tests1.png)
+
+![Второй снимок экрана](images/tests2.png)
+
+## Покрытие service-методов
+
+### Как запускать?
+
+```bash
+./gradlew coverage
+./gradlew clean test jacocoTestReport
+```
+
+### Результаты покрытия
+
+![Снимок экрана с покрытием](images/coverage.png)
 

@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.0.3'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'jacoco'
 }
 
 group = 'ru.msu.cmc'
@@ -39,6 +40,37 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	finalizedBy tasks.jacocoTestReport
+}
+
+jacoco {
+	toolVersion = "0.8.12"
+}
+
+// JaCoCo
+
+tasks.named('jacocoTestReport', JacocoReport) {
+	dependsOn tasks.test
+
+	reports {
+		xml.required = true
+		csv.required = false
+		html.required = true
+	}
+
+	classDirectories.setFrom(
+		files(classDirectories.files.collect {
+			fileTree(dir: it, include: [
+				'ru/msu/cmc/webprak/service/**'
+			])
+		})
+	)
+}
+
+tasks.register('coverage') {
+	group = 'verification'
+	description = 'Runs tests and generates JaCoCo coverage report.'
+	dependsOn tasks.clean, tasks.test, tasks.jacocoTestReport
 }
 
 // ---- DB tasks (psql-based) ----
