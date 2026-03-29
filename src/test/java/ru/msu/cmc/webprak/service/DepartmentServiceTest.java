@@ -65,6 +65,16 @@ class DepartmentServiceTest extends BaseIntegrationTest {
         assertTrue(managerOpt.isEmpty());
     }
 
+	@Test
+	void findAll_shouldReturnAllDepartments() {
+		List<Department> departments = departmentService.findAll();
+
+		assertNotNull(departments);
+		assertFalse(departments.isEmpty());
+
+		assertTrue(departments.stream().anyMatch(d -> d.getId().equals(1L)));
+	}
+
     @Test
     void findById_shouldReturnDepartmentWhenExists() {
         Optional<Department> departmentOpt = departmentService.findById(3L);

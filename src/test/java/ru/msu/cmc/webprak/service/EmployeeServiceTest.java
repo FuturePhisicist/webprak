@@ -17,6 +17,21 @@ class EmployeeServiceTest extends BaseIntegrationTest {
     @Autowired
     private EmployeeService employeeService;
 
+	@Test
+	void findById_shouldReturnEmployeeWhenExists() {
+		Optional<Employee> employeeOpt = employeeService.findById(1L);
+
+		assertTrue(employeeOpt.isPresent());
+		assertEquals(1L, employeeOpt.get().getId());
+	}
+
+	@Test
+	void findById_shouldReturnEmptyWhenEmployeeDoesNotExist() {
+		Optional<Employee> employeeOpt = employeeService.findById(999L);
+
+		assertTrue(employeeOpt.isEmpty());
+	}
+
     @Test
     void findAllActive_shouldReturnOnlyActiveEmployees() {
         List<Employee> employees = employeeService.findAllActive();
