@@ -189,4 +189,91 @@ class AssignmentServiceUnitTest {
 
         assertEquals("У сотрудника уже есть активное назначение", ex.getMessage());
     }
+
+    @Test
+    void validateAssignmentRequest_shouldThrowWhenNoFreeSlotsAvailable() {
+        Employee employee = new Employee();
+        employee.setId(8L);
+
+        Department department = new Department();
+        department.setId(1L);
+
+        Position position = new Position();
+        position.setId(1L);
+
+        DepartmentPosition dp = new DepartmentPosition();
+        dp.setDepartment(department);
+        dp.setPosition(position);
+        dp.setSlotsTotal(1);
+
+        when(employeeRepository.findById(8L)).thenReturn(Optional.of(employee));
+        when(departmentRepository.findById(1L)).thenReturn(Optional.of(department));
+        when(positionRepository.findById(1L)).thenReturn(Optional.of(position));
+        when(departmentPositionRepository.findByDepartmentIdAndPositionId(1L, 1L))
+                .thenReturn(Optional.of(dp));
+        when(assignmentRepository.findByEmployeeIdAndEndDateIsNull(8L))
+                .thenReturn(Optional.empty());
+        when(assignmentRepository.countActiveByDepartmentAndPosition(1L, 1L))
+                .thenReturn(1L);
+
+        BusinessLogicException ex = assertThrows(
+                BusinessLogicException.class,
+                () -> assignmentService.validateAssignmentRequest(
+                        8L, 1L, 1L, LocalDate.of(2025, 1, 10)
+                )
+        );
+
+        assertEquals("Нет свободных ставок для departmentId=1, positionId=1", ex.getMessage());
+    }
+
+    @Test
+    void closeActiveAssignment_shouldThrowWhenEndDateIsNull() {
+        BusinessLogicException ex = assertThrows(
+                BusinessLogicException.class,
+                () -> assignmentService.closeActiveAssignment(1L, null)
+        );
+
+        assertEquals("Дата завершения не может быть null", ex.getMessage());
+    }
+
+    @Test
+    void transferEmployee_shouldThrowWhenNoFreeSlotsAvailable() {
+        Employee employee = new Employee();
+        employee.setId(4L);
+
+        Department department = new Department();
+        department.setId(2L);
+
+        Position position = new Position();
+        position.setId(3L);
+
+        DepartmentPosition dp = new DepartmentPosition();
+        dp.setDepartment(department);
+        dp.setPosition(position);
+        dp.setSlotsTotal(1);
+
+        ru.msu.cmc.webprak.model.Assignment currentAssignment = new ru.msu.cmc.webprak.model.Assignment();
+        currentAssignment.setEmployee(employee);
+        currentAssignment.setDepartment(department);
+        currentAssignment.setPosition(position);
+        currentAssignment.setStartDate(LocalDate.of(2024, 1, 1));
+
+        when(assignmentRepository.findByEmployeeIdAndEndDateIsNull(4L))
+                .thenReturn(Optional.of(currentAssignment));
+        when(departmentRepository.findById(2L)).thenReturn(Optional.of(department));
+        when(positionRepository.findById(3L)).thenReturn(Optional.of(position));
+        when(departmentPositionRepository.findByDepartmentIdAndPositionId(2L, 3L))
+                .thenReturn(Optional.of(dp));
+        when(assignmentRepository.countActiveByDepartmentAndPosition(2L, 3L))
+                .thenReturn(1L);
+
+        BusinessLogicException ex = assertThrows(
+                BusinessLogicException.class,
+                () -> assignmentService.transferEmployee(
+                        4L, 2L, 3L, LocalDate.of(2025, 3, 1), "Перевод без свободной ставки"
+                )
+        );
+
+        assertEquals("Нет свободных ставок для departmentId=2, positionId=3", ex.getMessage());
+    }
 }
