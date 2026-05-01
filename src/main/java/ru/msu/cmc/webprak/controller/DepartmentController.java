@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.msu.cmc.webprak.controller.form.DepartmentForm;
+import ru.msu.cmc.webprak.controller.form.DepartmentPositionForm;
 import ru.msu.cmc.webprak.model.Department;
 import ru.msu.cmc.webprak.model.DepartmentPosition;
 import ru.msu.cmc.webprak.model.Employee;
@@ -90,6 +91,8 @@ public class DepartmentController {
         model.addAttribute("department", department);
         model.addAttribute("childDepartments", childDepartments);
         model.addAttribute("departmentPositions", departmentPositions);
+        model.addAttribute("departmentPositionForm", new DepartmentPositionForm());
+        model.addAttribute("positions", positionService.findAll());
         model.addAttribute("activeEmployees", employeeService.findActiveEmployeesByDepartment(id));
         return "departments/detail";
     }
@@ -126,6 +129,32 @@ public class DepartmentController {
             redirectAttributes.addFlashAttribute("error", exception.getMessage());
             return "redirect:/departments/" + id;
         }
+    }
+
+    @PostMapping("/{id}/positions")
+    public String addPosition(@PathVariable Long id,
+                              @ModelAttribute DepartmentPositionForm form,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            positionService.addPositionToDepartment(id, form.getPositionId(), form.getSlotsTotal());
+            redirectAttributes.addFlashAttribute("success", "Должность добавлена в подразделение");
+        } catch (BusinessLogicException | EntityNotFoundException exception) {
+            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        }
+        return "redirect:/departments/" + id;
+    }
+
+    @PostMapping("/{departmentId}/positions/{positionId}/delete")
+    public String removePosition(@PathVariable Long departmentId,
+                                 @PathVariable Long positionId,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            positionService.removePositionFromDepartment(departmentId, positionId);
+            redirectAttributes.addFlashAttribute("success", "Должность удалена из подразделения");
+        } catch (BusinessLogicException | EntityNotFoundException exception) {
+            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        }
+        return "redirect:/departments/" + departmentId;
     }
 
     private Department requireDepartment(Long id) {

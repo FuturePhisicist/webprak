@@ -40,7 +40,7 @@
     <section class="panel">
         <h2>Должности в подразделении</h2>
         <table>
-            <thead><tr><th>Должность</th><th>Ставок</th><th>Занимают</th></tr></thead>
+            <thead><tr><th>Должность</th><th>Ставок</th><th>Занимают</th><th>Действия</th></tr></thead>
             <tbody>
             <tr th:each="row : ${departmentPositions}">
                 <td><a th:href="@{/positions/{id}(id=${row.positionId})}" th:text="${row.positionName}"></a></td>
@@ -51,9 +51,30 @@
                         <a th:href="@{/employees/{id}(id=${employee.id})}" th:text="${employee.fullName}"></a><span th:if="${!iter.last}">, </span>
                     </span>
                 </td>
+                <td>
+                    <form th:action="@{/departments/{departmentId}/positions/{positionId}/delete(departmentId=${department.id},positionId=${row.positionId})}" method="post">
+                        <button class="danger" type="submit">Удалить из подразделения</button>
+                    </form>
+                </td>
             </tr>
+            <tr th:if="${#lists.isEmpty(departmentPositions)}"><td colspan="4">Должности не добавлены</td></tr>
             </tbody>
         </table>
+
+        <form class="toolbar" th:action="@{/departments/{id}/positions(id=${department.id})}" th:object="${departmentPositionForm}" method="post">
+            <div class="field">
+                <label for="positionId">Должность</label>
+                <select id="positionId" th:field="*{positionId}" required>
+                    <option value="">Выберите должность</option>
+                    <option th:each="position : ${positions}" th:value="${position.id}" th:text="${position.name}"></option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="slotsTotal">Количество ставок</label>
+                <input id="slotsTotal" type="number" min="1" th:field="*{slotsTotal}" required>
+            </div>
+            <button class="primary" type="submit">Добавить должность</button>
+        </form>
     </section>
 
     <section class="panel">

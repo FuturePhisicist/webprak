@@ -112,6 +112,26 @@ class WebSystemTest extends BaseIntegrationTest {
     }
 
     @Test
+    void positionCanBeAddedToDepartment() throws Exception {
+        mockMvc.perform(post("/departments/5/positions")
+                        .param("positionId", "5")
+                        .param("slotsTotal", "1"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/departments/5"))
+                .andExpect(flash().attribute("success", "Должность добавлена в подразделение"));
+    }
+
+    @Test
+    void duplicateDepartmentPositionReturnsBusinessError() throws Exception {
+        mockMvc.perform(post("/departments/5/positions")
+                        .param("positionId", "3")
+                        .param("slotsTotal", "1"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/departments/5"))
+                .andExpect(flash().attribute("error", "Должность уже предусмотрена в подразделении"));
+    }
+
+    @Test
     void departmentAndPositionPagesAreAvailable() throws Exception {
         mockMvc.perform(get("/departments/1"))
                 .andExpect(status().isOk())
