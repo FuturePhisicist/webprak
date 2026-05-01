@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Должности</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="page">
+    <div class="topbar">
+        <h1>Должности</h1>
+        <nav class="nav">
+            <a class="button" th:href="@{/}">На главную</a>
+            <a class="button primary" th:href="@{/positions/new}">Добавить должность</a>
+        </nav>
+    </div>
+    <div th:if="${success}" class="message success" th:text="${success}"></div>
+
+    <table>
+        <thead><tr><th>ID</th><th>Название</th><th>Описание</th><th>Подразделений</th><th>Активных назначений</th></tr></thead>
+        <tbody>
+        <tr th:each="row : ${rows}">
+            <td th:text="${row.id}"></td>
+            <td><a th:href="@{/positions/{id}(id=${row.id})}" th:text="${row.name}"></a></td>
+            <td th:text="${row.responsibilities}"></td>
+            <td th:text="${row.departmentCount}"></td>
+            <td th:text="${row.activeAssignmentCount}"></td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

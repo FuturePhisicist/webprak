@@ -15,6 +15,28 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
     List<Assignment> findByEmployeeIdOrderByStartDateDesc(Long employeeId);
 
     @Query("""
+            select a
+            from Assignment a
+            join fetch a.employee
+            join fetch a.department
+            join fetch a.position
+            where a.employee.id = :employeeId
+              and a.endDate is null
+            """)
+    Optional<Assignment> findByEmployeeIdAndEndDateIsNullWithDetails(@Param("employeeId") Long employeeId);
+
+    @Query("""
+            select a
+            from Assignment a
+            join fetch a.employee
+            join fetch a.department
+            join fetch a.position
+            where a.employee.id = :employeeId
+            order by a.startDate desc
+            """)
+    List<Assignment> findByEmployeeIdOrderByStartDateDescWithDetails(@Param("employeeId") Long employeeId);
+
+    @Query("""
             select count(a)
             from Assignment a
             where a.department.id = :departmentId
@@ -58,4 +80,3 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
             """)
     List<Assignment> findActiveByPosition(@Param("positionId") Long positionId);
 }
-

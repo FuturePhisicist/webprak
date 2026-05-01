@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title}">Форма должности</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="page">
+    <div class="topbar">
+        <h1 th:text="${title}"></h1>
+        <nav class="nav">
+            <a class="button" th:href="@{/}">На главную</a>
+            <a class="button" th:href="@{/positions}">Отменить</a>
+        </nav>
+    </div>
+    <div th:if="${error}" class="message error" th:text="${error}"></div>
+
+    <form class="panel" th:action="${positionId} == null ? @{/positions} : @{/positions/{id}(id=${positionId})}" th:object="${form}" method="post">
+        <div class="field"><label for="name">Название</label><input id="name" th:field="*{name}" required></div>
+        <div class="field"><label for="responsibilities">Обязанности</label><textarea id="responsibilities" th:field="*{responsibilities}" required></textarea></div>
+        <div class="actions">
+            <button class="primary" type="submit">Сохранить</button>
+            <a class="button" th:href="@{/positions}">Отменить</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

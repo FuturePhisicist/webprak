@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Служащие</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="page">
+    <div class="topbar">
+        <h1>Служащие</h1>
+        <nav class="nav">
+            <a class="button" th:href="@{/}">На главную</a>
+            <a class="button primary" th:href="@{/employees/new}">Добавить служащего</a>
+        </nav>
+    </div>
+    <div th:if="${success}" class="message success" th:text="${success}"></div>
+
+    <form class="toolbar" th:action="@{/employees}" method="get">
+        <div class="field">
+            <label for="q">ФИО</label>
+            <input id="q" name="q" type="search" th:value="${q}">
+        </div>
+        <div class="field">
+            <label for="departmentId">Подразделение</label>
+            <select id="departmentId" name="departmentId">
+                <option value="">Все</option>
+                <option th:each="department : ${departments}" th:value="${department.id}" th:text="${department.name}" th:selected="${department.id == departmentId}"></option>
+            </select>
+        </div>
+        <div class="field">
+            <label for="positionId">Должность</label>
+            <select id="positionId" name="positionId">
+                <option value="">Все</option>
+                <option th:each="position : ${positions}" th:value="${position.id}" th:text="${position.name}" th:selected="${position.id == positionId}"></option>
+            </select>
+        </div>
+        <div class="field">
+            <label for="sort">Сортировка</label>
+            <select id="sort" name="sort">
+                <option value="name" th:selected="${sort == 'name'}">По ФИО</option>
+                <option value="hireDate" th:selected="${sort == 'hireDate'}">По сроку работы</option>
+                <option value="department" th:selected="${sort == 'department'}">По подразделению</option>
+                <option value="position" th:selected="${sort == 'position'}">По должности</option>
+            </select>
+        </div>
+        <button class="primary" type="submit">Применить</button>
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>ФИО</th>
+            <th>Подразделение</th>
+            <th>Должность</th>
+            <th>Дата приема</th>
+            <th>Стаж</th>
+            <th>Статус</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="row : ${rows}">
+            <td th:text="${row.id}"></td>
+            <td><a th:href="@{/employees/{id}(id=${row.id})}" th:text="${row.fullName}"></a></td>
+            <td>
+                <a th:if="${row.departmentId != null}" th:href="@{/departments/{id}(id=${row.departmentId})}" th:text="${row.departmentName}"></a>
+                <span th:if="${row.departmentId == null}" th:text="${row.departmentName}"></span>
+            </td>
+            <td>
+                <a th:if="${row.positionId != null}" th:href="@{/positions/{id}(id=${row.positionId})}" th:text="${row.positionName}"></a>
+                <span th:if="${row.positionId == null}" th:text="${row.positionName}"></span>
+            </td>
+            <td th:text="${row.hireDate}"></td>
+            <td th:text="${row.workPeriod}"></td>
+            <td th:text="${row.status}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(rows)}">
+            <td colspan="7">Служащие не найдены</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

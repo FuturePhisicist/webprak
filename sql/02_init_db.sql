@@ -73,5 +73,19 @@ VALUES
   (9, 1, 3, 2, '2019-01-01',  '2020-12-31', 'Расширение обязанностей (историческая запись)'),
   (10, 1, 3, 2, '2021-01-01', '2022-12-31', 'Старший HR (история)');
 
-COMMIT;
+SELECT setval(pg_get_serial_sequence('hr.employees', 'employee_id'),
+              (SELECT COALESCE(MAX(employee_id), 1) FROM hr.employees), true);
 
+SELECT setval(pg_get_serial_sequence('hr.departments', 'department_id'),
+              (SELECT COALESCE(MAX(department_id), 1) FROM hr.departments), true);
+
+SELECT setval(pg_get_serial_sequence('hr.positions', 'position_id'),
+              (SELECT COALESCE(MAX(position_id), 1) FROM hr.positions), true);
+
+SELECT setval(pg_get_serial_sequence('hr.department_positions', 'dept_pos_id'),
+              (SELECT COALESCE(MAX(dept_pos_id), 1) FROM hr.department_positions), true);
+
+SELECT setval(pg_get_serial_sequence('hr.assignments', 'assignment_id'),
+              (SELECT COALESCE(MAX(assignment_id), 1) FROM hr.assignments), true);
+
+COMMIT;

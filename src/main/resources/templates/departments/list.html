@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Подразделения</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="page">
+    <div class="topbar">
+        <h1>Подразделения</h1>
+        <nav class="nav">
+            <a class="button" th:href="@{/}">На главную</a>
+            <a class="button" th:href="@{/departments/graph}">Граф подразделений</a>
+            <a class="button primary" th:href="@{/departments/new}">Добавить подразделение</a>
+        </nav>
+    </div>
+    <div th:if="${success}" class="message success" th:text="${success}"></div>
+
+    <table>
+        <thead>
+        <tr><th>ID</th><th>Название</th><th>Головное подразделение</th><th>Руководитель</th><th>Внутренние</th><th>Активные сотрудники</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="row : ${rows}">
+            <td th:text="${row.id}"></td>
+            <td><a th:href="@{/departments/{id}(id=${row.id})}" th:text="${row.name}"></a></td>
+            <td>
+                <a th:if="${row.parentId != null}" th:href="@{/departments/{id}(id=${row.parentId})}" th:text="${row.parentName}"></a>
+                <span th:if="${row.parentId == null}" th:text="${row.parentName}"></span>
+            </td>
+            <td>
+                <a th:if="${row.managerId != null}" th:href="@{/employees/{id}(id=${row.managerId})}" th:text="${row.managerName}"></a>
+                <span th:if="${row.managerId == null}" th:text="${row.managerName}"></span>
+            </td>
+            <td th:text="${row.childCount}"></td>
+            <td th:text="${row.activeEmployeeCount}"></td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

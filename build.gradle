@@ -60,8 +60,10 @@ tasks.named('jacocoTestReport', JacocoReport) {
 
 	classDirectories.setFrom(
 		files(classDirectories.files.collect {
-			fileTree(dir: it, include: [
-				'ru/msu/cmc/webprak/service/**'
+			fileTree(dir: it, exclude: [
+				// Exclude only the Spring Boot bootstrap class: covering main()
+				// would require starting the application from a test, which is not useful.
+				'ru/msu/cmc/webprak/WebprakApplication.class'
 			])
 		})
 	)
@@ -179,4 +181,3 @@ tasks.register('testSummary', Test) {
 		}
 	}
 }
-

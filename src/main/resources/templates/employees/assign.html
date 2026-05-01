@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Назначение служащего</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="page">
+    <div class="topbar">
+        <h1>Назначение: <span th:text="${employee.fullName}"></span></h1>
+        <nav class="nav">
+            <a class="button" th:href="@{/}">На главную</a>
+            <a class="button" th:href="@{/employees/{id}(id=${employee.id})}">Отменить</a>
+        </nav>
+    </div>
+    <div th:if="${error}" class="message error" th:text="${error}"></div>
+    <p class="muted" th:if="${currentAssignment != null}">
+        Текущее назначение будет закрыто днем перед датой перевода.
+    </p>
+    <form class="panel" th:action="@{/employees/{id}/assign(id=${employee.id})}" th:object="${form}" method="post">
+        <div class="grid">
+            <div class="field">
+                <label for="departmentId">Подразделение</label>
+                <select id="departmentId" th:field="*{departmentId}" required>
+                    <option value="">Выберите подразделение</option>
+                    <option th:each="department : ${departments}" th:value="${department.id}" th:text="${department.name}"></option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="positionId">Должность</label>
+                <select id="positionId" th:field="*{positionId}" required>
+                    <option value="">Выберите должность</option>
+                    <option th:each="position : ${positions}" th:value="${position.id}" th:text="${position.name}"></option>
+                </select>
+            </div>
+            <div class="field"><label for="startDate">Дата назначения</label><input id="startDate" type="date" th:field="*{startDate}" required></div>
+        </div>
+        <div class="field"><label for="note">Примечание</label><textarea id="note" th:field="*{note}"></textarea></div>
+        <div class="actions"><button class="primary" type="submit">Сохранить</button></div>
+    </form>
+</main>
+</body>
+</html>
