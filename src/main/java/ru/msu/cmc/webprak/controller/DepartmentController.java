@@ -20,9 +20,12 @@ import ru.msu.cmc.webprak.service.PositionService;
 import ru.msu.cmc.webprak.service.exception.BusinessLogicException;
 import ru.msu.cmc.webprak.service.exception.EntityNotFoundException;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -45,12 +48,20 @@ public class DepartmentController {
     @GetMapping("/graph")
     public String graph(Model model) {
         List<Department> departments = departmentService.findAll();
-        Map<Long, Department> byId = departments.stream()
-                .collect(Collectors.toMap(Department::getId, Function.identity()));
-        List<DepartmentNode> nodes = departments.stream()
-                .map(department -> toNode(department, byId))
-                .toList();
-        model.addAttribute("nodes", nodes);
+        Map<Long, List<Department>> childrenByParentId = departments.stream()
+                .filter(department -> department.getParentDepartment() != null)
+                .collect(Collectors.groupingBy(department -> department.getParentDepartment().getId()));
+        childrenByParentId.values()
+                .forEach(children -> children.sort(Comparator.comparing(Department::getId)));
+
+        List<DepartmentNode> orderedNodes = new ArrayList<>();
+        Set<Long> visited = new HashSet<>();
+        departments.stream()
+                .filter(department -> department.getParentDepartment() == null)
+                .sorted(Comparator.comparing(Department::getId))
+                .forEach(root -> appendGraphNode(root, 0, childrenByParentId, orderedNodes, visited));
+
+        model.addAttribute("nodes", orderedNodes);
         return "departments/graph";
     }
 
@@ -175,30 +186,28 @@ public class DepartmentController {
         );
     }
 
-    private DepartmentNode toNode(Department department, Map<Long, Department> byId) {
-        return new DepartmentNode(
+    private void appendGraphNode(Department department,
+                                 int depth,
+                                 Map<Long, List<Department>> childrenByParentId,
+                                 List<DepartmentNode> orderedNodes,
+                                 Set<Long> visited) {
+        if (!visited.add(department.getId())) {
+            return;
+        }
+
+        orderedNodes.add(new DepartmentNode(
                 department.getId(),
                 department.getName(),
                 department.getParentDepartment() == null ? null : department.getParentDepartment().getId(),
                 department.getManager() == null ? null : department.getManager().getId(),
                 department.getManager() == null ? "Не назначен" : department.getManager().getFullName(),
-                departmentService.countChildDepartments(department.getId()),
+                childrenByParentId.getOrDefault(department.getId(), List.of()).size(),
                 departmentService.countActiveEmployees(department.getId()),
-                depth(department, byId)
-        );
-    }
+                depth
+        ));
 
-    private int depth(Department department, Map<Long, Department> byId) {
-        int depth = 0;
-        Department current = department;
-        while (current.getParentDepartment() != null) {
-            depth++;
-            current = byId.get(current.getParentDepartment().getId());
-            if (current == null) {
-                break;
-            }
-        }
-        return depth;
+        childrenByParentId.getOrDefault(department.getId(), List.of())
+                .forEach(child -> appendGraphNode(child, depth + 1, childrenByParentId, orderedNodes, visited));
     }
 
     private void addFormData(Model model, DepartmentForm form, String title, String error, Long departmentId) {

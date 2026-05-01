@@ -5,9 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.msu.cmc.webprak.BaseIntegrationTest;
 
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -129,6 +133,29 @@ class WebSystemTest extends BaseIntegrationTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/departments/5"))
                 .andExpect(flash().attribute("error", "Должность уже предусмотрена в подразделении"));
+    }
+
+    @Test
+    void departmentGraphUsesTreePreorder() throws Exception {
+        MvcResult result = mockMvc.perform(get("/departments/graph"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("departments/graph"))
+                .andReturn();
+
+        @SuppressWarnings("unchecked")
+        List<DepartmentController.DepartmentNode> nodes =
+                (List<DepartmentController.DepartmentNode>) result.getModelAndView().getModel().get("nodes");
+
+        assertEquals("Головной офис", nodes.get(0).name());
+        assertEquals(0, nodes.get(0).depth());
+        assertEquals("IT департамент", nodes.get(1).name());
+        assertEquals(1, nodes.get(1).depth());
+        assertEquals("Разработка", nodes.get(2).name());
+        assertEquals(2, nodes.get(2).depth());
+        assertEquals("HR департамент", nodes.get(3).name());
+        assertEquals(1, nodes.get(3).depth());
+        assertEquals("Финансовый отдел", nodes.get(4).name());
+        assertEquals(1, nodes.get(4).depth());
     }
 
     @Test
