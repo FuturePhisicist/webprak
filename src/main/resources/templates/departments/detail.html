@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${department.name}">Подразделение</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="page">
+    <div class="topbar">
+        <h1 th:text="${department.name}"></h1>
+        <nav class="nav">
+            <a class="button" th:href="@{/}">На главную</a>
+            <a class="button" th:href="@{/departments}">Назад к списку</a>
+        </nav>
+    </div>
+    <div th:if="${success}" class="message success" th:text="${success}"></div>
+    <div th:if="${error}" class="message error" th:text="${error}"></div>
+
+    <section class="panel">
+        <p><strong>Руководитель:</strong>
+            <a th:if="${department.manager != null}" th:href="@{/employees/{id}(id=${department.manager.id})}" th:text="${department.manager.fullName}"></a>
+            <span th:if="${department.manager == null}">Не назначен</span>
+        </p>
+        <p><strong>Головное подразделение:</strong>
+            <a th:if="${department.parentDepartment != null}" th:href="@{/departments/{id}(id=${department.parentDepartment.id})}" th:text="${department.parentDepartment.name}"></a>
+            <span th:if="${department.parentDepartment == null}">Корневое</span>
+        </p>
+    </section>
+
+    <section class="panel">
+        <h2>Внутренние подразделения</h2>
+        <ul>
+            <li th:each="child : ${childDepartments}"><a th:href="@{/departments/{id}(id=${child.id})}" th:text="${child.name}"></a></li>
+            <li th:if="${#lists.isEmpty(childDepartments)}">Нет внутренних подразделений</li>
+        </ul>
+    </section>
+
+    <section class="panel">
+        <h2>Должности в подразделении</h2>
+        <table>
+            <thead><tr><th>Должность</th><th>Ставок</th><th>Занимают</th></tr></thead>
+            <tbody>
+            <tr th:each="row : ${departmentPositions}">
+                <td><a th:href="@{/positions/{id}(id=${row.positionId})}" th:text="${row.positionName}"></a></td>
+                <td th:text="${row.slotsTotal}"></td>
+                <td>
+                    <span th:if="${#lists.isEmpty(row.activeEmployees)}">Нет активных сотрудников</span>
+                    <span th:each="employee, iter : ${row.activeEmployees}">
+                        <a th:href="@{/employees/{id}(id=${employee.id})}" th:text="${employee.fullName}"></a><span th:if="${!iter.last}">, </span>
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <h2>Активные сотрудники</h2>
+        <ul>
+            <li th:each="employee : ${activeEmployees}"><a th:href="@{/employees/{id}(id=${employee.id})}" th:text="${employee.fullName}"></a></li>
+            <li th:if="${#lists.isEmpty(activeEmployees)}">Нет активных сотрудников</li>
+        </ul>
+    </section>
+
+    <div class="actions">
+        <a class="button primary" th:href="@{/departments/{id}/edit(id=${department.id})}">Редактировать</a>
+        <form th:action="@{/departments/{id}/delete(id=${department.id})}" method="post">
+            <button class="danger" type="submit">Удалить</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

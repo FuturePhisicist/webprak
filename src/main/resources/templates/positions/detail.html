@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${position.name}">Должность</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="page">
+    <div class="topbar">
+        <h1 th:text="${position.name}"></h1>
+        <nav class="nav">
+            <a class="button" th:href="@{/}">На главную</a>
+            <a class="button" th:href="@{/positions}">Назад к списку</a>
+        </nav>
+    </div>
+    <div th:if="${success}" class="message success" th:text="${success}"></div>
+    <div th:if="${error}" class="message error" th:text="${error}"></div>
+
+    <section class="panel">
+        <p><strong>Обязанности:</strong></p>
+        <p th:text="${position.responsibilities}"></p>
+        <p><strong>Активных назначений:</strong> <span th:text="${activeAssignments}"></span></p>
+    </section>
+
+    <section class="panel">
+        <h2>Подразделения и свободные позиции</h2>
+        <table>
+            <thead><tr><th>Подразделение</th><th>Всего ставок</th><th>Занято</th><th>Свободно</th></tr></thead>
+            <tbody>
+            <tr th:each="dp : ${departmentPositions}">
+                <td><a th:href="@{/departments/{id}(id=${dp.departmentId})}" th:text="${dp.departmentName}"></a></td>
+                <td th:text="${dp.slotsTotal}"></td>
+                <td th:text="${dp.occupiedSlots}"></td>
+                <td th:text="${dp.freeSlots}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(departmentPositions)}"><td colspan="4">Должность не используется подразделениями</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <div class="actions">
+        <a class="button primary" th:href="@{/positions/{id}/edit(id=${position.id})}">Редактировать</a>
+        <form th:action="@{/positions/{id}/delete(id=${position.id})}" method="post">
+            <button class="danger" type="submit">Удалить</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

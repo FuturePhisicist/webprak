@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${employee.fullName}">Служащий</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="page">
+    <div class="topbar">
+        <h1 th:text="${employee.fullName}"></h1>
+        <nav class="nav">
+            <a class="button" th:href="@{/}">На главную</a>
+            <a class="button" th:href="@{/employees}">Назад к списку</a>
+        </nav>
+    </div>
+    <div th:if="${success}" class="message success" th:text="${success}"></div>
+    <div th:if="${error}" class="message error" th:text="${error}"></div>
+
+    <section class="panel">
+        <p><strong>Домашний адрес:</strong> <span th:text="${employee.homeAddress}"></span></p>
+        <p><strong>Образование:</strong> <span th:text="${employee.education}"></span></p>
+        <p><strong>Срок работы:</strong> <span th:text="${workPeriod}"></span></p>
+        <p><strong>Статус:</strong> <span th:text="${employee.status}"></span></p>
+        <p th:if="${currentAssignment != null}">
+            <strong>Текущее назначение:</strong>
+            <a th:href="@{/positions/{id}(id=${currentAssignment.position.id})}" th:text="${currentAssignment.position.name}"></a>,
+            <a th:href="@{/departments/{id}(id=${currentAssignment.department.id})}" th:text="${currentAssignment.department.name}"></a>
+        </p>
+        <p th:if="${currentAssignment == null}"><strong>Текущее назначение:</strong> нет</p>
+    </section>
+
+    <div class="actions">
+        <a class="button" th:href="@{/employees/{id}/history(id=${employee.id})}">История служащего</a>
+        <a class="button" th:href="@{/employees/{id}/assign(id=${employee.id})}">Назначить на новую должность</a>
+        <a class="button primary" th:href="@{/employees/{id}/edit(id=${employee.id})}">Редактировать</a>
+        <form th:action="@{/employees/{id}/delete(id=${employee.id})}" method="post">
+            <button class="danger" type="submit">Удалить</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

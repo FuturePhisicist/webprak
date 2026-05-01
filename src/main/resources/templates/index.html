@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Система информации о персонале</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="page">
+    <div class="topbar">
+        <div>
+            <h1>Система информации о персонале</h1>
+            <p class="muted">Служащие, подразделения, должности и назначения</p>
+        </div>
+    </div>
+
+    <form class="toolbar" th:action="@{/employees}" method="get">
+        <div class="field">
+            <label for="q">Поиск служащего по ФИО</label>
+            <input id="q" name="q" type="search" placeholder="Иванов Иван">
+        </div>
+        <button class="primary" type="submit">Поиск</button>
+    </form>
+
+    <section class="grid">
+        <div class="panel">
+            <h2>Служащие</h2>
+            <p class="muted" th:text="${employeeCount} + ' записей'"></p>
+            <div class="actions">
+                <a class="button primary" th:href="@{/employees}">Все служащие</a>
+                <a class="button" th:href="@{/employees/new}">Добавить служащего</a>
+            </div>
+        </div>
+        <div class="panel">
+            <h2>Подразделения</h2>
+            <p class="muted" th:text="${departmentCount} + ' записей'"></p>
+            <div class="actions">
+                <a class="button primary" th:href="@{/departments}">Все подразделения</a>
+                <a class="button" th:href="@{/departments/graph}">Граф подразделений</a>
+                <a class="button" th:href="@{/departments/new}">Добавить подразделение</a>
+            </div>
+        </div>
+        <div class="panel">
+            <h2>Должности</h2>
+            <p class="muted" th:text="${positionCount} + ' записей'"></p>
+            <div class="actions">
+                <a class="button primary" th:href="@{/positions}">Все должности</a>
+                <a class="button" th:href="@{/positions/new}">Добавить должность</a>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

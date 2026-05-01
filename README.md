@@ -16,3 +16,4 @@ sudo docker exec -it devshell_container bash
 
 1. [Отчет 1](reports/REPORT_1.md)
 2. [Отчет 2](reports/REPORT_2.md)
+3. [Отчет 3](reports/REPORT_3.md)

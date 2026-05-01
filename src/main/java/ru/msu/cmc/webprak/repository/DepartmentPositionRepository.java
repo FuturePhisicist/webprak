@@ -14,11 +14,20 @@ public interface DepartmentPositionRepository extends JpaRepository<DepartmentPo
     @Query("""
             select dp
             from DepartmentPosition dp
+            join fetch dp.department
             join fetch dp.position
             where dp.department.id = :departmentId
             """)
     List<DepartmentPosition> findByDepartmentId(Long departmentId);
 
+    @Query("""
+            select dp
+            from DepartmentPosition dp
+            join fetch dp.department
+            join fetch dp.position
+            where dp.position.id = :positionId
+            """)
+    List<DepartmentPosition> findByPositionIdWithDepartment(Long positionId);
+
     long countByPositionId(Long positionId);
 }
-

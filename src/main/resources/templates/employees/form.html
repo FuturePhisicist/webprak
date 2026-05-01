@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title}">Форма служащего</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="page">
+    <div class="topbar">
+        <h1 th:text="${title}"></h1>
+        <nav class="nav">
+            <a class="button" th:href="@{/}">На главную</a>
+            <a class="button" th:href="@{/employees}">Отменить</a>
+        </nav>
+    </div>
+    <div th:if="${error}" class="message error" th:text="${error}"></div>
+
+    <form class="panel" th:action="${employeeId} == null ? @{/employees} : @{/employees/{id}(id=${employeeId})}" th:object="${form}" method="post">
+        <div class="grid">
+            <div class="field"><label for="lastName">Фамилия</label><input id="lastName" th:field="*{lastName}" required></div>
+            <div class="field"><label for="firstName">Имя</label><input id="firstName" th:field="*{firstName}" required></div>
+            <div class="field"><label for="middleName">Отчество</label><input id="middleName" th:field="*{middleName}"></div>
+            <div class="field"><label for="hireDate">Дата приема</label><input id="hireDate" type="date" th:field="*{hireDate}" required></div>
+            <div class="field">
+                <label for="education">Образование</label>
+                <select id="education" th:field="*{education}" required>
+                    <option th:each="level : ${educationLevels}" th:value="${level}" th:text="${level}"></option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="status">Статус</label>
+                <select id="status" th:field="*{status}" required>
+                    <option th:each="status : ${statuses}" th:value="${status}" th:text="${status}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="field">
+            <label for="homeAddress">Домашний адрес</label>
+            <textarea id="homeAddress" th:field="*{homeAddress}" required></textarea>
+        </div>
+        <div class="actions">
+            <button class="primary" type="submit">Сохранить</button>
+            <a class="button" th:href="@{/employees}">Отменить</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>
