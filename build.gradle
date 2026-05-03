@@ -21,6 +21,20 @@ configurations {
 	}
 }
 
+sourceSets {
+	webSystemTest {
+		java.srcDir file('src/web_system/java')
+		resources.srcDir file('src/web_system/resources')
+		compileClasspath += sourceSets.main.output + sourceSets.test.output
+		runtimeClasspath += output + compileClasspath
+	}
+}
+
+configurations {
+	webSystemTestImplementation.extendsFrom testImplementation
+	webSystemTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
 repositories {
 	mavenCentral()
 }
@@ -36,6 +50,8 @@ dependencies {
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	webSystemTestImplementation 'com.microsoft.playwright:playwright:1.52.0'
 }
 
 tasks.named('test') {
@@ -180,4 +196,41 @@ tasks.register('testSummary', Test) {
 			println "Test summary: ${result.testCount} total, ${result.successfulTestCount} passed, ${result.failedTestCount} failed, ${result.skippedTestCount} skipped"
 		}
 	}
+}
+
+tasks.register('web_system', Test) {
+	group = 'verification'
+	description = 'Runs Playwright web system tests against a real HTTP Spring Boot server.'
+
+	testClassesDirs = sourceSets.webSystemTest.output.classesDirs
+	classpath = sourceSets.webSystemTest.runtimeClasspath
+	dependsOn tasks.named('webSystemTestClasses')
+	shouldRunAfter tasks.test
+	systemProperty 'playwright.skip.browser.download', 'true'
+
+	useJUnitPlatform()
+
+	testLogging {
+		events "passed", "skipped", "failed"
+		exceptionFormat "full"
+		showStandardStreams = true
+	}
+}
+
+tasks.register('playwrightInstall', JavaExec) {
+	group = 'verification'
+	description = 'Installs the Chromium browser used by Playwright web_system tests.'
+
+	classpath = sourceSets.webSystemTest.runtimeClasspath
+	mainClass = 'com.microsoft.playwright.CLI'
+	args 'install', 'chromium'
+}
+
+tasks.register('playwrightInstallDeps', JavaExec) {
+	group = 'verification'
+	description = 'Installs Linux system dependencies required by Playwright Chromium.'
+
+	classpath = sourceSets.webSystemTest.runtimeClasspath
+	mainClass = 'com.microsoft.playwright.CLI'
+	args 'install-deps', 'chromium'
 }
